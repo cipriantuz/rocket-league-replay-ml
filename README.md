@@ -1,11 +1,14 @@
 # Rocket League replay ML
 
-Frame-level machine learning on Rocket League match replays, from my MSc dissertation.
-The code turns raw `.replay` files into frame tables (one row per frame, 15 or 30 frames per second),
-then asks three questions: can the winner be predicted from game physics alone, part-way
-through a match? Can short "play schemes" (aerial dribble, double tap, ceiling shot) be
-recognised from raw physics? Where does evaluation leak information? The aim was a method
-whose numbers hold up, not the best-looking numbers.
+This is my MSc dissertation project: frame-level machine learning on Rocket League match
+replays. What I cared about was a method whose numbers hold up, not the best-looking numbers.
+
+The code turns raw `.replay` files into frame tables (one row per frame, 15 or 30 frames per
+second), then asks three questions:
+
+- Can the winner be predicted from game physics alone, part-way through a match?
+- Can short "play schemes" (aerial dribble, double tap, ceiling shot) be recognised from raw physics?
+- Where does the evaluation leak information?
 
 ## Pipeline
 
@@ -38,9 +41,9 @@ flowchart LR
 
 ## Results
 
-All numbers below are copied from the metric files in [`results/`](results/) (copies of the
-original run outputs, with machine paths removed). "Physics only" means no score-derived
-inputs: the model never sees the scoreboard.
+Every number below is taken straight from the metric files in [`results/`](results/), which are
+copies of the original run outputs with machine paths removed. "Physics only" means no
+score-derived inputs: the model never sees the scoreboard.
 
 **Winner prediction, physics only (ROC-AUC by fraction of the match observed)**
 
@@ -89,8 +92,8 @@ on it.
 
 ## Getting data
 
-Replays are not redistributed here. Download your own from [ballchasing.com](https://ballchasing.com)
-with your own API key (Settings -> API Key on the site), passed through an environment variable:
+I don't redistribute replays here. Download your own from [ballchasing.com](https://ballchasing.com)
+with your own API key (Settings -> API Key on the site), passed in through an environment variable:
 
 ```bash
 export BALLCHASING_TOKEN=<your-api-key>
@@ -100,11 +103,11 @@ python -m src.ingestion.replay_pipeline --raw-dir data/raw --out-dir data/proces
 RL_DECIMATE_EVERY=1 python -m src.ingestion.replay_pipeline --raw-dir data/raw --out-dir data/processed_30hz
 ```
 
-The dissertation runs also used public replay collections from Kaggle. Respect the
-ballchasing.com terms; the client is rate-limited (2 requests/s by default) and retries with back-off.
+Please respect the ballchasing.com terms. The client is rate-limited (2 requests/s by default)
+and retries with back-off. For the dissertation runs I also used public replay collections from Kaggle.
 
-Runs behind the tables (flags taken from the result files and the scripts' docstrings; the
-20k HMLT run used a large GPU with a VRAM-resident cache, peak 51.6 GB):
+These are the runs behind the tables. The flags come from the result files and the scripts'
+docstrings, and the 20k HMLT run used a large GPU with a VRAM-resident cache (peak GPU memory 51.6 GB).
 
 ```bash
 python -m src.train_hmlt_v2 --processed-root data/processed_15hz --limit 20000 --no-hybrid \
@@ -123,68 +126,69 @@ python -m src.eval_imminence --processed-root data/processed_15hz --limit 600 --
 
 ## Design decisions
 
-- **Split by replay, never by window.** Windows of one match are highly correlated. Every split
-  (train / val / test for HMLT, GroupKFold for everything else) keeps all windows of a replay
-  on one side.
-- **Check for leakage, don't assume it away.** Three checks: the kick-off prediction must be near
-  chance; player-disjoint folds must not change the result much; the match clock must be
+- **Split by replay, never by window.** Windows from the same match are highly correlated, so
+  every split (train / val / test for HMLT, GroupKFold for everything else) keeps all windows of
+  a replay on one side.
+- **Check for leakage, don't assume it away.** I run three checks: the kick-off prediction must be
+  near chance, player-disjoint folds must not change the result much, and the match clock must be
   ablated in goal-imminence prediction (see below).
-- **Physics only as the headline.** Score-derived inputs make win prediction easy and say
-  little about play. They are reported separately and excluded from the main comparison.
+- **Physics only as the headline.** Score-derived inputs make win prediction easy and say little
+  about play, so they're reported separately and kept out of the main comparison.
 - **Transformer vs gradient boosting.** Aggregates throw away the order of events. The
   hierarchical model encodes every 3 s window with a small CNN, then lets a Transformer attend
   over the whole sequence, so one model predicts at any point of the match from raw frames.
-  Gradient boosting on 23 hand-made aggregates is the strong baseline it has to beat.
+  Gradient boosting on 17 hand-made aggregates (the 23 without the 6 score-derived ones) is the strong
+  baseline it has to beat.
 - **One 133-dim frame layout for 1v1, 2v2 and 3v3** (six car slots plus presence masks), with a
   test that the offline vector from Parquet equals the vector built from a live game state.
 
 ## Limitations and negative results
 
-- **The Transformer does not beat gradient boosting.** 0.718 vs 0.713 at a third of the
-  match is a tie: the gap is smaller than the 0.007 that the baseline itself moves between
-  replay folds and player folds, and the two are evaluated differently (one held-out test set
-  vs 5-fold CV on a different sample). The baseline also gets the players' MMR, which the
-  Transformer does not. My reading is a signal ceiling at this data scale, not a win.
-- **More data helped the Transformer:** 0.887 -> 0.945 at full time from about 15k to 20k replays.
-- **Scheme labels are weak labels.** They come from my rule-based detectors, kept only when the
-  replay's touch analyzer confirms a car-ball contact. A macro-F1 of 0.831 measures how well
-  the CNN recovers those labels from raw physics, not agreement with human annotators. "None"
-  windows are sampled at least 1 s away from any detected event, which makes them easier than
-  real negatives. The best epoch is chosen on the held-out fold, so the number is slightly optimistic.
-- **0.298 at 15 Hz is not comparable to 0.831.** The fair comparison is 0.298 vs 0.617 on
-  the same 5,522 windows; the 0.831 run uses 34x more data and shorter windows.
-- **Flip resets could not be detected** from replay data (wheel-ball contact is not
-  reconstructed faithfully), so that class was dropped. See `src/patterns/flip_reset.py`.
+- **The Transformer doesn't beat gradient boosting.** 0.718 vs 0.713 at a third of the match is
+  a tie. The gap is smaller than the 0.007 that the baseline itself moves between replay folds
+  and player folds, and the two are evaluated differently (one held-out test set vs 5-fold CV on
+  a different sample). The baseline also gets the players' MMR, which the Transformer doesn't.
+  I read this as a signal ceiling at this data scale, not a win.
+- **More data helped the Transformer:** 0.887 -> 0.945 at full time, from about 15k to 20k replays.
+- **Scheme labels are weak labels.** They come from my rule-based detectors and are kept only when
+  the replay's touch analyzer confirms a car-ball contact. So the macro-F1 of 0.831 measures how
+  well the CNN recovers those labels from raw physics, not agreement with human annotators.
+  "None" windows are sampled at least 1 s away from any detected event, which makes them easier
+  than real negatives. And the best epoch is chosen on the held-out fold, so the number is
+  slightly optimistic.
+- **0.298 at 15 Hz isn't comparable to 0.831.** The fair comparison is 0.298 vs 0.617 on the same
+  5,522 windows. The 0.831 run uses 34x more data and shorter windows.
+- **Flip resets couldn't be detected** from replay data (wheel-ball contact isn't reconstructed
+  faithfully), so I dropped that class. See `src/patterns/flip_reset.py`.
 - **Goal imminence is mostly the clock.** The 0.932 XGBoost uses all 23 aggregates, clock
-  included; dropping the three time features gives 0.307. This was measured on a 600-replay
-  subset only.
-- **Player folds are lopsided.** Shared players link 11,744 of the 15,000 replays into one
-  group, so one fold dominates; the small delta is a sanity check, not a precise estimate.
-- The results cannot be reproduced from this repo alone: you need the replays and, for the
-  20k run, a large GPU.
+  included. Drop the three time features and it falls to 0.307. I measured this on a
+  600-replay subset only.
+- **Player folds are lopsided.** Shared players link 11,744 of the 15,000 replays into one group,
+  so one fold dominates. Treat the small delta as a sanity check, not a precise estimate.
+- You can't reproduce the results from this repo alone: you need the replays and, for the 20k
+  run, a large GPU.
 
-## How this was built
+## How I built it
 
-The code was written with AI coding agents (Claude Code), which wrote most of it. I owned
-the research questions, the architecture, the review gates and the verification. What was
-checked, and how:
+AI coding agents (Claude Code) wrote most of the code in this repo. I owned the research
+questions, the architecture, the review gates and the verification. I don't take an agent's
+"done" at face value, so this is what I checked, and how:
 
-- **Leakage**, with the three checks above. A first tabular model (in an earlier stage of
-  the project, not in this repo) scored suspiciously high; the cause was a feature computed
-  from goals scored. Later results got the same treatment; that is how the clock leak in
-  goal-imminence prediction was found.
-- **A data bug caught and fixed:** car identities were scrambled in an early version of the
-  frame tables. Results from the corrupted data were discarded and the runs repeated on
-  clean tables.
-- **Detectors checked against the game:** detections were watched in the Rocket League
-  replay viewer to measure precision, and full matches were watched to estimate recall.
-  This is how the flip-reset detector was found unreliable.
-- **Offline equals live:** a unit test checks that the frame vector built from Parquet
-  matches the one built from a live game state.
-- **Numbers kept traceable:** every result went into a ledger with its source file. For
-  this repo, every number in the tables above was rechecked against the metric files in
-  `results/`, and a test asserts the logged parameter count (1,035,009).
-- **Tests:** 129 offline tests on synthetic data (see above).
+- Leakage, with the three checks above. A first tabular model (from an earlier stage of the
+  project, not in this repo) scored suspiciously high, and the cause was a feature computed from
+  goals scored. I gave later results the same treatment, and that's how the clock leak in
+  goal-imminence prediction showed up.
+- A data bug, caught and fixed: car identities were scrambled in an early version of the frame
+  tables. I discarded the results from the corrupted data and repeated the runs on clean tables.
+- The detectors, checked against the game: I watched detections in the Rocket League replay
+  viewer to measure precision, and watched full matches to estimate recall. That's how the
+  flip-reset detector turned out to be unreliable.
+- Offline equals live: a unit test checks that the frame vector built from Parquet matches the
+  one built from a live game state.
+- Traceable numbers: every result went into a ledger with its source file. For this repo I
+  rechecked every number in the tables above against the metric files in `results/`, and a test
+  asserts the logged parameter count (1,035,009).
+- Tests: 129 offline tests on synthetic data (see above).
 
 ## License
 
