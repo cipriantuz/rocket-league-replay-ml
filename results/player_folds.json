@@ -1,0 +1,64 @@
+{
+  "player_ids_available": true,
+  "player_id_source": "events.parquet / agent_id (ballchasing player UID, uint64)",
+  "config": {
+    "at_fraction": 0.34,
+    "limit": 15000,
+    "seed": 42,
+    "n_splits": 5
+  },
+  "group_stats": {
+    "n_replays": 15000,
+    "n_unique_players": 25817,
+    "n_player_groups": 2949,
+    "coverage_with_events": 14716,
+    "coverage_no_events": 0,
+    "coverage_empty_events": 284,
+    "max_group": 11744,
+    "median_group": 1,
+    "mean_group": 5.0864699898270604,
+    "singleton_groups": 2740,
+    "n_groups": 2949
+  },
+  "n_matches_dataset": 13572,
+  "random_acc": 0.5032419687592101,
+  "replay_grouped_folds": {
+    "logreg": {
+      "acc": 0.607870573562362,
+      "auc": 0.6506012702269116,
+      "logloss": 0.6599499927485276,
+      "n_folds_ok": 5,
+      "lift_over_random": 0.10462860480315184
+    },
+    "gbm": {
+      "acc": 0.6566463233408111,
+      "auc": 0.7203040849516116,
+      "logloss": 0.612326972890643,
+      "n_folds_ok": 5,
+      "lift_over_random": 0.15340435458160095
+    }
+  },
+  "player_grouped_folds": {
+    "n_effective_groups": 2949,
+    "singleton_groups": 2740,
+    "logreg": {
+      "acc": 0.6127129767091966,
+      "auc": 0.649672856709129,
+      "logloss": 0.6603161900030927,
+      "n_folds_ok": 5,
+      "lift_over_random": 0.10947100794998643
+    },
+    "gbm": {
+      "acc": 0.6505936484429793,
+      "auc": 0.7133937302269425,
+      "logloss": 0.6230237025565455,
+      "n_folds_ok": 5,
+      "lift_over_random": 0.14735167968376917
+    }
+  },
+  "delta_replay_vs_player_auc": {
+    "logreg": 0.0009,
+    "gbm": 0.0069
+  },
+  "interpretation": "A positive delta means replay-grouped folds underestimated leakage. Delta close to 0 means shared players across matches do not add meaningful leakage over GroupKFold(replay_id)."
+}

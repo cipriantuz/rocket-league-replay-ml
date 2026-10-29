@@ -1,0 +1,26 @@
+# Data and replays: never commit (ballchasing.com content, not redistributable)
+data/
+*.replay
+*.parquet
+*.npy
+*.npz
+
+# Model checkpoints and run outputs
+reports/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Secrets
+.env
+*.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/

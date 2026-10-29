@@ -1,0 +1,73 @@
+{
+  "model": "HMLT-L1-FrameWindowEncoder",
+  "n_total": 187707,
+  "n_positives": 75083,
+  "n_none": 112624,
+  "class_names": [
+    "NONE",
+    "aerial_dribble",
+    "ceiling_shot",
+    "double_tap"
+  ],
+  "class_counts": {
+    "NONE": 112624,
+    "aerial_dribble": 34652,
+    "ceiling_shot": 9824,
+    "double_tap": 30607
+  },
+  "window_len": 30,
+  "stride": 30,
+  "d_win": 128,
+  "kernel_size": 3,
+  "epochs": 30,
+  "batch_size": 64,
+  "n_folds": 5,
+  "cv_macro_f1_mean": 0.8310578231594077,
+  "cv_macro_f1_std": 0.0010837636957633547,
+  "cv_macro_f1_per_fold": [
+    0.8329062128879855,
+    0.8310692318772244,
+    0.8305925134999391,
+    0.8295645789461918,
+    0.8311565785856976
+  ],
+  "cv_f1_per_class": {
+    "NONE": 0.9231828069155867,
+    "aerial_dribble": 0.7518090494975456,
+    "ceiling_shot": 0.8777742115724891,
+    "double_tap": 0.7714652246520094
+  },
+  "cv_confusion_matrix_sum": [
+    [
+      99566,
+      6751,
+      539,
+      5768
+    ],
+    [
+      1741,
+      26494,
+      1017,
+      5400
+    ],
+    [
+      136,
+      320,
+      9176,
+      192
+    ],
+    [
+      1632,
+      2265,
+      351,
+      26359
+    ]
+  ],
+  "class_weights_balanced": {
+    "NONE": 0.4166674017906189,
+    "aerial_dribble": 1.354229211807251,
+    "ceiling_shot": 4.776745796203613,
+    "double_tap": 1.5332032442092896
+  },
+  "device": "cuda"
+}

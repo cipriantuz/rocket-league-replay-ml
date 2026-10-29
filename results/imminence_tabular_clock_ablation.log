@@ -1,0 +1,7 @@
+15:10:07  INFO      Split: train=420 val=90 test=90
+15:15:21  INFO      Materialized: train=132105 val=30992 test=29517 windows
+15:15:21  INFO      Positive base rate — train: 0.195  test: 0.209
+15:15:21  INFO        [LogReg                ] H=10s  pr_auc=0.8831  roc_auc=0.9780  brier=0.0469  base_rate=0.209
+15:15:21  INFO        [LogReg_no_time        ] H=10s  pr_auc=0.2664  roc_auc=0.5822  brier=0.1629  base_rate=0.209
+15:15:22  INFO        [XGBoost               ] H=10s  pr_auc=0.9317  roc_auc=0.9865  brier=0.0377  base_rate=0.209
+15:15:23  INFO        [XGBoost_no_time       ] H=10s  pr_auc=0.3070  roc_auc=0.6254  brier=0.2418  base_rate=0.209

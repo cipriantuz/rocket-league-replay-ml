@@ -1,0 +1,49 @@
+{
+  "horizon_s": 10.0,
+  "n_replays_limit": 600,
+  "n_test_windows": 29517,
+  "positive_base_rate_test": 0.209,
+  "time_features_removed_in_no_time": [
+    "time_remaining_norm",
+    "is_overtime",
+    "score_x_time"
+  ],
+  "results": [
+    {
+      "model": "LogReg",
+      "horizon_s": 10,
+      "pr_auc": 0.8831,
+      "roc_auc": 0.978,
+      "brier": 0.0469,
+      "base_rate": 0.209,
+      "note": "TIME-LEAKY: includes time_remaining"
+    },
+    {
+      "model": "LogReg_no_time",
+      "horizon_s": 10,
+      "pr_auc": 0.2664,
+      "roc_auc": 0.5822,
+      "brier": 0.1629,
+      "base_rate": 0.209,
+      "note": "FAIR: physics-only features"
+    },
+    {
+      "model": "XGBoost",
+      "horizon_s": 10,
+      "pr_auc": 0.9317,
+      "roc_auc": 0.9865,
+      "brier": 0.0377,
+      "base_rate": 0.209,
+      "note": "TIME-LEAKY: includes time_remaining"
+    },
+    {
+      "model": "XGBoost_no_time",
+      "horizon_s": 10,
+      "pr_auc": 0.307,
+      "roc_auc": 0.6254,
+      "brier": 0.2418,
+      "base_rate": 0.209,
+      "note": "FAIR: physics-only features"
+    }
+  ]
+}

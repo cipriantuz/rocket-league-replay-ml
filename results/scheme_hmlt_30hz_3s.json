@@ -1,0 +1,73 @@
+{
+  "model": "HMLT-L1-FrameWindowEncoder",
+  "n_total": 5522,
+  "n_positives": 2209,
+  "n_none": 3313,
+  "class_names": [
+    "NONE",
+    "aerial_dribble",
+    "ceiling_shot",
+    "double_tap"
+  ],
+  "class_counts": {
+    "NONE": 3313,
+    "aerial_dribble": 1058,
+    "ceiling_shot": 230,
+    "double_tap": 921
+  },
+  "window_len": 90,
+  "stride": 30,
+  "d_win": 128,
+  "kernel_size": 3,
+  "epochs": 30,
+  "batch_size": 64,
+  "n_folds": 5,
+  "cv_macro_f1_mean": 0.6173568098892475,
+  "cv_macro_f1_std": 0.010679827264693685,
+  "cv_macro_f1_per_fold": [
+    0.6210786558431046,
+    0.6126904543400716,
+    0.6151929401700436,
+    0.6351152150082295,
+    0.602706784084788
+  ],
+  "cv_f1_per_class": {
+    "NONE": 0.8470628300163681,
+    "aerial_dribble": 0.5273788271860944,
+    "ceiling_shot": 0.5284952045616498,
+    "double_tap": 0.5664903777928776
+  },
+  "cv_confusion_matrix_sum": [
+    [
+      2756,
+      249,
+      43,
+      265
+    ],
+    [
+      238,
+      543,
+      68,
+      209
+    ],
+    [
+      18,
+      46,
+      131,
+      35
+    ],
+    [
+      179,
+      152,
+      24,
+      566
+    ]
+  ],
+  "class_weights_balanced": {
+    "NONE": 0.4166918098926544,
+    "aerial_dribble": 1.3048204183578491,
+    "ceiling_shot": 6.002173900604248,
+    "double_tap": 1.4989142417907715
+  },
+  "device": "cuda"
+}
