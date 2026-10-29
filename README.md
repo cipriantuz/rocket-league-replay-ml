@@ -1,7 +1,7 @@
 # Rocket League replay ML
 
 Frame-level machine learning on Rocket League match replays, from my MSc dissertation.
-The code turns raw `.replay` files into frame tables (one row per game tick at 15 or 30 Hz),
+The code turns raw `.replay` files into frame tables (one row per frame, 15 or 30 frames per second),
 then asks three questions: can the winner be predicted from game physics alone, part-way
 through a match? Can short "play schemes" (aerial dribble, double tap, ceiling shot) be
 recognised from raw physics? Where does evaluation leak information? The aim was a method
@@ -69,7 +69,7 @@ Sources: `results/scheme_hmlt_30hz_1s.json`, `results/scheme_hmlt_30hz_3s.json`,
 
 | Check | Result | Source |
 |---|---|---|
-| HMLT at kick-off (5% of the match, score 0-0) | accuracy 0.537, ROC-AUC 0.554: close to chance, as it should be | `results/winpred_hmlt_physics_15hz_20k.json` |
+| HMLT at kick-off (first 5% of the match) | accuracy 0.537, ROC-AUC 0.554: close to chance, as it should be | `results/winpred_hmlt_physics_15hz_20k.json` |
 | Same players in several matches: player-disjoint folds instead of replay folds | gradient boosting 0.720 -> 0.713, logistic regression 0.651 -> 0.650 | `results/player_folds.json` |
 | "Goal in the next 10 s", tabular, 600-replay subset (29,517 test windows, base rate 0.209) | XGBoost PR-AUC 0.932 with the 23 aggregates, 0.307 after removing the 3 time features; logistic regression 0.883 -> 0.266 | `results/imminence_tabular_clock_ablation.json` and `.log` |
 
